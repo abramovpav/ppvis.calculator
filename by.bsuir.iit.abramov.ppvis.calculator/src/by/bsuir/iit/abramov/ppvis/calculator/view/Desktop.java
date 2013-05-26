@@ -1,124 +1,70 @@
 package by.bsuir.iit.abramov.ppvis.calculator.view;
 
-import java.awt.Font;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import by.bsuir.iit.abramov.ppvis.calculator.controller.ButtonListener;
-import by.bsuir.iit.abramov.ppvis.calculator.util.Buttons;
+import by.bsuir.iit.abramov.ppvis.calculator.model.Model;
+import by.bsuir.iit.abramov.ppvis.calculator.model.RPN;
 import by.bsuir.iit.abramov.ppvis.calculator.util.ExpressionTextField;
+import by.bsuir.iit.abramov.ppvis.calculator.util.InputTextField;
+import by.bsuir.iit.abramov.ppvis.calculator.util.MainButton;
+import by.bsuir.iit.abramov.ppvis.calculator.util.Token;
 
 public class Desktop extends JPanel {
-	private static final String	_0	= "0";
-	private static final char	DIFFERENCE	= '-';
-	private static final char	SUM	= '+';
-	private static final char	MULTIPLICATION	= '*';
-	private static final char	DIVISION	= '/';
-	private static final char	NINE	= '9';
-	private static final char	ZERO	= '0';
-	private static final char	SQRT	= 't';
-	private static final char	LN	= 'n';
-	private static final char	LOG	= 'g';
-	private static final char	FACTORIAL	= '!';
-	private final ExpressionTextField	inputField;
+	private final InputTextField		inputField;
 	private final ExpressionTextField	expressionField;
 	private static final int			BUTTON_HEIGHT			= 40;
 	private static final int			BUTTON_WIDTH			= 100;
 	private static final int			BUTTONS_COLUMNS_COUNT	= 5;
-	private final Map<Buttons, JButton>	buttons;
+	private final Map<Token, JButton>	buttons;
+	private final RPN					rpn;
+	private final Model					model;
+	private JPanel						buttonsPanel;
+	private boolean						mode					= true;
 
-	/**
-	 * Create the panel.
-	 */
-	public Desktop() {
+	public Desktop(final Model model) {
 
+		this.model = model;
+		rpn = model.getRPN();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		buttons = new HashMap<Buttons, JButton>();
+		buttons = new HashMap<Token, JButton>();
 		expressionField = new ExpressionTextField("");
-		expressionField.setFont(new Font("MV Boli", Font.PLAIN, 20));
-		add(expressionField);
-		expressionField.setEditable(false);
-		expressionField.setColumns(10);
-		inputField = new ExpressionTextField(_0);
-		inputField.setFont(new Font("MV Boli", Font.PLAIN, 20));
+		final JScrollPane scroll = new JScrollPane(expressionField);
+		add(scroll);
+		inputField = new InputTextField(InputTextField._0);
 		add(inputField);
 		inputField.setColumns(10);
 
-		final JPanel buttonsPanel = new JPanel();
+		buttonsPanel = new JPanel();
 		add(buttonsPanel);
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
-
-		final int i = 0;
-		int j = 0;
-		JPanel rowButtonsPanel = new JPanel();
-		buttonsPanel.add(rowButtonsPanel);
-		for (final Buttons eButton : Buttons.values()) {
-			createButton(rowButtonsPanel, eButton);
-			j++;
-			if (j == Desktop.BUTTONS_COLUMNS_COUNT) {
-				rowButtonsPanel = new JPanel();
-				buttonsPanel.add(rowButtonsPanel);
-				j = 0;
-			}
-		}
+		createButtons(buttonsPanel, mode);
 	}
 
 	public void addLeftBracket() {
 
-		String expression = expressionField.getText();
-		if (isLastNumber(expression) || isLastRightBraket(expression)) {
-			return;
-		}
-		expression += "(";
-		expressionField.setText(expression);
+		expressionField.addLeftBracket();
 	}
 
-	public void addNumToExpression(final String str) {
+	public void addNumToInput(final String str) {
 
-		String input = inputField.getText();
-		if (inputField.isEmpty()) {
-			input = "";
-		}
-
-		inputField.setText(input + str);
-		inputField.setEmpty(false);
-
+		inputField.addNumToInput(str);
 	}
 
 	public void addPoint(final String point) {
 
-		final String input = inputField.getText();
-		inputField.setText(input + point);
-		inputField.setEmpty(false);
+		inputField.addPoint(point);
 	}
 
 	public void addRightBracket() {
 
-		String expression = expressionField.getText();
-		if (expressionField.isRightAndLeftBracketCountEqual()) {
-			return;
-		}
-		String input = inputField.getText();
-		if (inputField.isEmpty()) {
-			input = "";
-			if (isLastOperation4(expression) || isLastOperation3(expression)
-					|| isLastLeftBraket(expression)) {
-				expression += _0;
-			}
-		} else {
-			if (isLastRightBraket(expression) || isLastNumber(expression)) {
-				input = "";
-			} else if (isLastOperation3(expression)) {
-				expression += "(";
-			}
-		}
-
-		expressionField.setText(expression + input + ")");
-		cleanInputField();
+		expressionField.addRightBracket(inputField);
 	}
 
 	public void backspace() {
@@ -127,188 +73,81 @@ public class Desktop extends JPanel {
 		if (expression.length() == 0) {
 			return;
 		}
-		deleteToken();
+		expressionField.deleteToken();
 	}
 
-	private void cleanInputField() {
+	public void CE() {
 
-		inputField.setText(_0);
-		inputField.setEmpty(true);
+		expressionField.CE(inputField);
 	}
 
-	private void createButton(final JPanel panel, final Buttons eButton) {
+	private void createButton(final JPanel panel, final MainButton eButton) {
 
-		final JButton button = new JButton(eButton.getCaption());
-		buttons.put(eButton, button);
+		final JButton button = new JButton(eButton.getString());
+		buttons.put(eButton.getToken(), button);
 		button.setSize(Desktop.BUTTON_WIDTH, Desktop.BUTTON_HEIGHT);
-		button.addActionListener(new ButtonListener(eButton, this));
+		button.addActionListener(new ButtonListener(eButton.getToken(), this));
 		panel.add(button);
 	}
 
-	private void deleteToken() {
+	public void createButtons(final JPanel buttonsPanel, final boolean mode) {
 
-		String expression = expressionField.getText();
-		if (isLastPoint(expression) || isLastLeftBraket(expression)
-				|| isLastRightBraket(expression) || isLastNumber(expression)
-				|| isLastOperation4(expression)) {
-			expression = expression.substring(0, expression.length() - 1);
-		} else if (isLastOperation3(expression)) {
-			final char c = expression.toCharArray()[expression.length() - 1];
-			switch (c) {
-				case FACTORIAL:
-					expression = expression.substring(0, expression.length() - 1);
-				break;
-				case LOG:
-					expression = expression.substring(0, expression.length() - 3);
-				break;
-				case LN:
-					expression = expression.substring(0, expression.length() - 2);
-				break;
-				case SQRT:
-					expression = expression.substring(0, expression.length() - 4);
+		JPanel rowButtonsPanel = new JPanel();
+		int j = 0;
+		buttonsPanel.add(rowButtonsPanel);
+		for (final MainButton eButton : MainButton.values()) {
+			if ((mode && eButton.isMain()) || !mode) {
+				createButton(rowButtonsPanel, eButton);
+				j++;
+				if (j == Desktop.BUTTONS_COLUMNS_COUNT) {
+					rowButtonsPanel = new JPanel();
+					buttonsPanel.add(rowButtonsPanel);
+					j = 0;
+				}
 			}
 		}
-		expressionField.setText(expression);
 	}
 
-	private boolean isLastLeftBraket(final String str) {
+	public void equal() {
 
-		if (str.length() == 0) {
-			return false;
-		}
-		final char c = str.toCharArray()[str.length() - 1];
-		return c == '(';
+		expressionField.equal(inputField);
+		model.createRPNStringAndTree(expressionField, inputField);
+
 	}
 
-	private boolean isLastNumber(final String str) {
+	public void expand() {
 
-		if (str.length() == 0) {
-			return false;
-		}
-		final char c = str.toCharArray()[str.length() - 1];
-		return c >= ZERO && c <= NINE;
+		mode = !mode;
+		System.out.println("pol");
+		remove(buttonsPanel);
+		buttonsPanel = new JPanel();
+		add(buttonsPanel);
+		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+		createButtons(buttonsPanel, mode);
+		revalidate();
+
+		updateUI();
 	}
 
-	private boolean isLastOperation3(final String str) {
+	public void operation3(final Token operation) {
 
-		if (str.length() == 0) {
-			return false;
-		}
-		final char c = str.toCharArray()[str.length() - 1];
-		switch (c) {
-			case SQRT:// sqrt
-				return true;
-			case LOG:// log
-				return true;
-			case LN:// ln
-				return true;
-			case FACTORIAL:
-				return true;
-		}
-		return false;
+		expressionField.operation3(operation, inputField);
 	}
 
-	private boolean isLastOperation4(final String str) {
+	public void operation4(final Token operation) {
 
-		if (str.length() == 0) {
-			return false;
-		}
-		final char c = str.toCharArray()[str.length() - 1];
-		switch (c) {
-			case DIVISION:
-				return true;
-			case MULTIPLICATION:
-				return true;
-			case SUM:
-				return true;
-			case DIFFERENCE:
-				return true;
-		}
-		return false;
-	}
-
-	private boolean isLastPoint(final String str) {
-
-		if (str.length() == 0) {
-			return false;
-		}
-		final char c = str.toCharArray()[str.length() - 1];
-		return c == '.';
-	}
-
-	private boolean isLastRightBraket(final String str) {
-
-		if (str.length() == 0) {
-			return false;
-		}
-		final char c = str.toCharArray()[str.length() - 1];
-		return c == ')';
-	}
-
-	public void operation3(final String operation) {
-
-		String input = inputField.getText();
-		if (inputField.isEmpty()) {
-			input = "";
-		}
-		String expression = expressionField.getText();
-
-		if (inputField.isEmpty() && expression.length() == 0) {
-			expression = operation;
-		} else if (isLastNumber(expression) || isLastRightBraket(expression)) {
-			return;
-		}
-
-		expressionField.setText(expression + operation + input);
-		cleanInputField();
-	}
-
-	public void operation4(final String operation) {
-
-		String input = inputField.getText();
-		if (inputField.isEmpty()) {
-			input = "";
-		}
-		String expression = expressionField.getText();
-
-		if (inputField.isEmpty() && expression.length() == 0) {
-			expression = _0 + operation;
-		} else if (isLastNumber(expression) || isLastRightBraket(expression)) {
-
-			input = "";
-		} else if (isLastOperation4(expression) && inputField.isEmpty()) {
-			expression = expression.substring(0, expression.length() - 1);
-		} else if (inputField.isEmpty()) {
-			if (isLastLeftBraket(expression) || isLastOperation3(expression)) {
-				expression += _0;
-			}
-			if (isLastPoint(expression)) {
-				expression = expression.substring(0, expression.length() - 1);
-			}
-
-		}
-
-		expressionField.setText(expression + input + operation);
-		cleanInputField();
+		expressionField.operation4(operation, inputField);
 
 	}
 
 	public void reverse() {
 
-		if (!inputField.isEmpty()) {
-			final String input = inputField.getText();
-			final String expression = expressionField.getText();
-			if (isLastLeftBraket(expression) || isLastOperation3(expression)
-					|| isLastOperation4(expression)) {
-				expressionField.setText(expression + "(1/" + inputField.getText() + ")");
-			}
-			cleanInputField();
-		}
+		expressionField.reverse(inputField);
 	}
 
 	public void sign() {
 
-		expressionField.changeSign();
+		inputField.changeSign();
 	}
 
 }

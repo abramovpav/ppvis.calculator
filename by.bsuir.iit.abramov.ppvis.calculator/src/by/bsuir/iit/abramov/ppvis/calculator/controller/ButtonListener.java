@@ -3,14 +3,14 @@ package by.bsuir.iit.abramov.ppvis.calculator.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import by.bsuir.iit.abramov.ppvis.calculator.util.Buttons;
+import by.bsuir.iit.abramov.ppvis.calculator.util.Token;
 import by.bsuir.iit.abramov.ppvis.calculator.view.Desktop;
 
 public class ButtonListener implements ActionListener {
 
 	private ActionListener	listener;
 
-	public ButtonListener(final Buttons eButton, final Desktop desktop) {
+	public ButtonListener(final Token eButton, final Desktop desktop) {
 
 		listener = null;
 		switch (eButton) {
@@ -24,7 +24,7 @@ public class ButtonListener implements ActionListener {
 				listener = new NumberButtonListener(3, desktop);
 			break;
 			case DIVISION:
-				listener = new Operation4ButtonListener("/", desktop);
+				listener = new Operation4ButtonListener(Token.DIVISION, desktop);
 			break;
 			case L_BRAKET:
 				listener = new LeftBracketButtonListener(desktop);
@@ -39,7 +39,7 @@ public class ButtonListener implements ActionListener {
 				listener = new NumberButtonListener(6, desktop);
 			break;
 			case MULTIPLICATION:
-				listener = new Operation4ButtonListener("*", desktop);
+				listener = new Operation4ButtonListener(Token.MULTIPLICATION, desktop);
 			break;
 			case R_BRAKET:
 				listener = new RightBracketButtonListener(desktop);
@@ -54,10 +54,10 @@ public class ButtonListener implements ActionListener {
 				listener = new NumberButtonListener(9, desktop);
 			break;
 			case SUM:
-				listener = new Operation4ButtonListener("+", desktop);
+				listener = new Operation4ButtonListener(Token.SUM, desktop);
 			break;
 			case LOG:
-				listener = new Operation3ButtonListener("log", desktop);
+				listener = new Operation3ButtonListener(Token.LOG, desktop);
 			break;
 			case ZERO:
 				listener = new NumberButtonListener(0, desktop);
@@ -69,13 +69,13 @@ public class ButtonListener implements ActionListener {
 				listener = new SignButtonListener("sign", desktop);
 			break;
 			case DIFFERENCE:
-				listener = new Operation4ButtonListener("-", desktop);
+				listener = new Operation4ButtonListener(Token.DIFFERENCE, desktop);
 			break;
 			case LN:
-				listener = new Operation3ButtonListener("ln", desktop);
+				listener = new Operation3ButtonListener(Token.LN, desktop);
 			break;
 			case SQRT:
-				listener = new Operation3ButtonListener("sqrt", desktop);
+				listener = new Operation3ButtonListener(Token.SQRT, desktop);
 			break;
 			case BACKSPACE:
 				listener = new BackspaceButtonListener(desktop);
@@ -84,9 +84,13 @@ public class ButtonListener implements ActionListener {
 				listener = new ReverseButtonListener(desktop);
 			break;
 			case FACTORIAL:
-				listener = new Operation3ButtonListener("!", desktop);
+				listener = new Operation3ButtonListener(Token.FACTORIAL, desktop);
 			break;
 			case EQUAL:
+				listener = new EqualButtonListener(desktop);
+			break;
+			case CE:
+				listener = new CEButtonListener(desktop);
 			break;
 			default:
 
