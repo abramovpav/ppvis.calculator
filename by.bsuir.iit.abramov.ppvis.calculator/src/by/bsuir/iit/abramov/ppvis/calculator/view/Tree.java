@@ -97,6 +97,12 @@ public class Tree extends JPanel {
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
 	}
 
+	public void clear() {
+
+		setRoot(new TokenCell(TokenType.NUM, "root"));
+		RPN = null;
+	}
+
 	private void createButton(final JPanel buttonPane, final String text) {
 
 		final JButton button = new JButton(text);
@@ -127,24 +133,11 @@ public class Tree extends JPanel {
 		}
 	}
 
-	private void setRoot(TokenCell cell) {
-
-		root = new TreeNode(cell);
-		treeModel.setRoot(root);
-		tree.revalidate();
-		tree.updateUI();
-	}
-
 	private void deleteLast(final List<TokenCell> list) {
 
 		if (list.size() != 0) {
 			list.remove(list.size() - 1);
 		}
-	}
-	
-	public void clear() {
-		setRoot(new TokenCell(TokenType.NUM, "root"));
-		RPN = null;
 	}
 
 	private TreeNode findChild(final TreeNode node) {
@@ -209,6 +202,14 @@ public class Tree extends JPanel {
 		} else {
 			return null;
 		}
+	}
+
+	private void setRoot(final TokenCell cell) {
+
+		root = new TreeNode(cell);
+		treeModel.setRoot(root);
+		tree.revalidate();
+		tree.updateUI();
 	}
 
 	public void stepBack() {

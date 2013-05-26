@@ -144,6 +144,16 @@ public class RPN {
 		return -1;
 	}
 
+	public void clear() {
+
+		expression.clear();
+		steps.clear();
+		stack.clear();
+		rpn.clear();
+		isCalculated = false;
+		result = 0;
+	}
+
 	public double getResult() {
 
 		return result;
@@ -201,17 +211,7 @@ public class RPN {
 		this.expression.add(new TokenCell(TokenType.L_BRACKET, Token.L_BRAKET));
 		this.expression.addAll(expression);
 		this.expression.add(new TokenCell(TokenType.R_BRACKET, Token.R_BRAKET));
-		
-	}
 
-	public void clear() {
-
-		this.expression.clear();
-		steps.clear();
-		stack.clear();
-		rpn.clear();
-		isCalculated = false;
-		result = 0;
 	}
 
 	private int processOperation(final List<TokenCell> rpn, int i, final TokenCell cell) {

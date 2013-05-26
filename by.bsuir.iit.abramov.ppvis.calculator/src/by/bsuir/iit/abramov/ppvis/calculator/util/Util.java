@@ -1,6 +1,5 @@
 package by.bsuir.iit.abramov.ppvis.calculator.util;
 
-
 public class Util {
 	public static long factorial(final long n) {
 

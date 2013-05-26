@@ -43,6 +43,13 @@ public class Model {
 		return text;
 	}
 
+	public void clear() {
+
+		step = 0;
+		RPN.clear();
+		tree.clear();
+	}
+
 	public void createRPNStringAndTree(final ExpressionTextField expressionField,
 			final InputTextField inputField) {
 
@@ -86,12 +93,6 @@ public class Model {
 			}
 		}
 
-	}
-	
-	public void clear() {
-		step = 0;
-		RPN.clear();
-		tree.clear();
 	}
 
 	public void stepFullForward() {
