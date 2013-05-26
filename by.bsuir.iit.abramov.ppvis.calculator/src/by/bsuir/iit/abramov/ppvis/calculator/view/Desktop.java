@@ -79,6 +79,7 @@ public class Desktop extends JPanel {
 	public void CE() {
 
 		expressionField.CE(inputField);
+		model.clear();
 	}
 
 	private void createButton(final JPanel panel, final MainButton eButton) {

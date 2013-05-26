@@ -1,7 +1,7 @@
 package by.bsuir.iit.abramov.ppvis.calculator.util;
 
 public enum MenuItem {
-	EXPAND("Expand");
+	EXPAND("Расширить");
 
 	private String	text;
 

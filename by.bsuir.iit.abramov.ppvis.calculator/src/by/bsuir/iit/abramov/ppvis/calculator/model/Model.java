@@ -87,6 +87,12 @@ public class Model {
 		}
 
 	}
+	
+	public void clear() {
+		step = 0;
+		RPN.clear();
+		tree.clear();
+	}
 
 	public void stepFullForward() {
 
